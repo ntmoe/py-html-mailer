@@ -220,6 +220,11 @@ for line in files['Original']:
 		files['Archive'].write(line)
 	else:
 		deleteLines = True # We're in a region to delete, so set this to true
+		# Let's make a soup of this line
+		archiveSoup = BeautifulSoup(line)
+		# and replace all the urls in this line with the archive url
+		for a in archiveSoup.findAll('a'):
+			a['href'] = urls['Archive']
 	
 	if (deleteLines == True) & ("<!-- *|END:IF|* -->" in line):
 		# This is the last line of the deleted region, so change the flag
