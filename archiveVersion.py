@@ -203,40 +203,33 @@ for a in soup.findAll('a'):
 		if FileExists(aURL):
 			filesToPublish.append(aURL)
 	
-# Turn the soup back into a list of lines
+# Turn the soup back into a string
 print 'Reformatting original HTML file...'
-keepLineEndings = True
-files['Original'] = TidyHTML(soup.prettify(), tidyOptions).splitlines(keepLineEndings)
+files['Original'] = str(soup)
 
-# Create a flag for when we're in a region of the file that we're deleting
-# out of the archive version
-deleteLines = False
+searchRegex = "<!-- \*\|IFNOT:ARCHIVE_PAGE\|\* -->.*<!-- \*\|END:IF\|\* -->"
 
-# Go through every line of the original file
-print "Creating archival version..."
-for line in files['Original']:
-	if (deleteLines == False) & ("<!-- *|IFNOT:ARCHIVE_PAGE|* -->" not in line):
-		# The lines get copied to the archive version
-		files['Archive'].write(line)
-	else:
-		deleteLines = True # We're in a region to delete, so set this to true
-		# Let's make a soup of this line
-		archiveSoup = BeautifulSoup(line)
-		# and replace all the urls in this line with the archive url
-		for a in archiveSoup.findAll('a'):
+m = re.search(searchRegex, files['Original'], re.DOTALL)
+
+archiveVersion = files['Original'][:m.start(0)] + files['Original'][m.end(0):]
+files['Archive'].write(TidyHTML(archiveVersion, tidyOptions))
+
+archiveSoup = BeautifulSoup(m.group(0))
+for a in archiveSoup.findAll('a'):
 			a['href'] = urls['Archive']
-	
-	if (deleteLines == True) & ("<!-- *|END:IF|* -->" in line):
-		# This is the last line of the deleted region, so change the flag
-		deleteLines = False
 
-# Close the files so that we can read to some of them
+files['Original'] = TidyHTML(files['Original'][:m.start(0)] + \
+										str(archiveSoup) + \
+										files['Original'][m.end(0):], \
+										tidyOptions)
+
+# Close the files so that we can read some of them
 for value in files.itervalues():
 	if isinstance(value, file): # If it's a file object, close it
 		value.close()
 
 # Create the content to send to Premailer
-	content = ''.join(files['Original'])
+	content = files['Original']
 
 if settings.as_bool('use_premailer') == True:
 		# Premailer will put xmlns="http://www.w3.org/1999/xhtml" into the html tag no matter
