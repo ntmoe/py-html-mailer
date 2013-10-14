@@ -39,9 +39,12 @@ Use
 ---
 Create an HTML message. Our example here is `jan_newsletter.html`. If you're using images, place them in the same directory as the HTML file and refer to the images using relative links.
 
-The input file and other options are configured with a user-constructed INI file. Here's an example of this file:
+The input file and other options are configured with a user-constructed INI file. Here's an example of this file, which is named `config.ini` here, but can be named anything you'd like:
 
     # Email header information
+        # The address format is the same as that which MS Outlook uses if you were to copy
+        # addresses from an e-mail in Outlook and paste it into a plain text file.
+        # Enclose the addresses in quotes. I've given a few examples of the format here.
     From = "Foo Communications <communications@foo.com>"
     Reply-To = "Doe, John <jdoe@foo.com>"
     To = "Jane Austen <jausten@bar.com>; Dickens, Charles <cdickens@foo.com>"
@@ -52,15 +55,22 @@ The input file and other options are configured with a user-constructed INI file
     port = 25
     
     # Project structure information
+        # The file you're working from.
     original_HTML = jan_newsletter.html
     www-docs_root = ~/www-docs
+        # The URL to your user directory.
     web_path_root = http://users.foo.com/~johndoe/
+        # The path inside www-docs where you'd like your images and archive version to live.
     path_to_site_folder = newsletter/2012/jan/
     
-    # Options
+    # Options (answer True or False)
+        # If you'd like to move the files to the Web-accessible directory
     publish_files = True
+        # If you'd like to use the Premailer service to tidy up your message before it's sent
     use_premailer = True
+        # If you'd like to use lynx to generate the plain text version (instead of Premailer)
     use_lynx_for_text = False
+        # If you'd like to allow mailscript4.py to send your message. This is a safety measure.
     send_message = True
     
 Once you have this, you can process the HTML file, make sending and archive versions and send it off:
