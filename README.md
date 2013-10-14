@@ -74,4 +74,14 @@ What each script does
 ---------------------
 (More to come)
 
-I use MailChimp-style tags when constructing my e-mail messages. When `archiveVersion.py` detects `*|ARCHIVE|*` in the HTML source, it replaces that tag with the URL for the archive version that will be posted online.
+I use MailChimp-style tags when constructing my e-mail messages. When `archiveVersion.py` detects `*|ARCHIVE|*` in the HTML source, it replaces that tag with the URL for the archive version that will be posted online. This will usually be in a section like this:
+
+    <!-- *|IFNOT:ARCHIVE_PAGE|* -->
+    <td valign="top" width="190">
+      <div>
+        Is this email not displaying correctly?<br/><a href="*|ARCHIVE|*" target="_blank">View it in your browser</a>.
+      </div>
+    </td>
+    <!-- *|END:IF|* -->
+
+`archiveVersion.py` will look for HTML bracketed by `<!-- *|IFNOT:ARCHIVE_PAGE|* -->` and `<!-- *|END:IF|* -->` and remove it from the archive version of the message.
