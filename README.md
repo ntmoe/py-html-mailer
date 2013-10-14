@@ -1,5 +1,4 @@
-py-html-mailer
-==============
+# py-html-mailer
 
 These are scripts that I use to send e-mail marketing messages through a private Exchange server. I needed to send professional-style HTML e-mail newsletters to campus distribution lists, which are inaccessible from typical e-mail marketing platforms (e.g. MailChimp, ConstantContact, etc.). So I wrote my own scripts to do this.
 
@@ -19,8 +18,8 @@ Also requires HTML Tidy, which can be obtained  and installed to a user's home d
     $ ./configure --prefix=$HOME/local
     $ make install
 
-Install
--------
+## Install
+
 Clone the project, make the scripts executable, and link them to a `bin` directory on the user's account. (Here, `~/local/bin`, which is created here.
 
     $ git clone git://github.com/ntmoe/py-html-mailer.git
@@ -35,8 +34,8 @@ Clone the project, make the scripts executable, and link them to a `bin` directo
 
 Be sure to add this `bin` directory to your `$PATH`.
 
-Use
----
+## Use
+
 Create an HTML message. Our example here is `jan_newsletter.html`. If you're using images, place them in the same directory as the HTML file and refer to the images using relative links.
 
 The input file and other options are configured with a user-constructed INI file. Here's an example of this file, which is named `config.ini` here, but can be named anything you'd like:
@@ -80,9 +79,34 @@ Once you have this, you can process the HTML file, make sending and archive vers
     
 You will be prompted for your e-mail account's password after the last command.
 
-What each script does
----------------------
-(More to come)
+##What each script does
+
+### `archiveVersion.py`
+
+1. Generates a tracking pixel (a 1x1 transparent GIF), saves it with the same name as the working HTML file (here, `jan_newsletter.gif`), and attaches it to the end of the message
+2. Replaces the title of the HTML document with the subject line listed in the INI file. If there is no `<title>...<\title>` in the document already, one is created
+2. Goes through each image and adds dimensions to the `<img />` tags
+3. Finds images and other files linked by relative links and stages them for publishing to the Web-accessible directory
+4. Uses HTML Tidy and `BeautifulSoup` to create versions for mailing and for archiving
+5. If enabled in the INI file, sends the HTML to the Premailer service to remove comments from the HTML and to change the URLs from relative links to absolute links that point to files on the Web-accessible directory. Premailer also sends back a text-only version of the HTML. The script removes the CDATA tags that Premailer inserts sometimes.
+6. If `use_lynx_for_text` is set to False in the INI file, Premailer's plain text version is used to generate a `txt` file. Otherwise, it is generated with `lynx`.
+7. The files referred to by relative links are published to the Web-accessible directory. The script takes care of creating the paths and setting Web permissions.
+7. Multiple files are generated:
+    - `jan_newsletter-archive.html`: The version published to the Web-accessible directory
+    - `jan_newsletter-mail.html`: The HTML version that will be mailed
+    - `jan_newsletter.txt`: The plain text version that will be mailed
+    - `jan_newsletter.gif`: The tracking pixel
+
+At this point, you can create a link to the tracking pixel in the Web-accessible directory on a service like `bit.ly` and insert the tracking link's URL into `jan_newsletter-mail.html`.
+
+### `mailscript4.py`
+
+1. Uses the INI file to find the `-mail.html` and `.txt` versions
+2. Uses the INI file to create Subject, From, To, Reply-To fields
+3. Joins the `-mail.html` and `.txt` versions into a message
+4. Using the account listed in the To field, sends the message using the server settings in the INI file and asks for the account's password to do so.
+
+### Tags for the archive versions
 
 I use MailChimp-style tags when constructing my e-mail messages. When `archiveVersion.py` detects `*|ARCHIVE|*` in the HTML source, it replaces that tag with the URL for the archive version that will be posted online. This will usually be in a section like this:
 
