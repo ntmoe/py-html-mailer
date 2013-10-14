@@ -87,7 +87,7 @@ You will be prompted for your e-mail account's password after the last command.
 2. Replaces the title of the HTML document with the subject line listed in the INI file. If there is no `<title>...<\title>` in the document already, one is created
 2. Goes through each image and adds dimensions to the `<img />` tags
 3. Finds images and other files linked by relative links and stages them for publishing to the Web-accessible directory
-4. Uses HTML Tidy and `BeautifulSoup` to create versions for mailing and for archiving
+4. Uses HTML Tidy and `BeautifulSoup` to create versions for mailing and for archiving (see "Tags for the archive versions" below)
 5. If enabled in the INI file, sends the HTML to the Premailer service to remove comments from the HTML and to change the URLs from relative links to absolute links that point to files on the Web-accessible directory. Premailer also sends back a text-only version of the HTML. The script removes the CDATA tags that Premailer inserts sometimes.
 6. If `use_lynx_for_text` is set to False in the INI file, Premailer's plain text version is used to generate a `txt` file. Otherwise, it is generated with `lynx`.
 7. The files referred to by relative links are published to the Web-accessible directory. The script takes care of creating the paths and setting Web permissions.
