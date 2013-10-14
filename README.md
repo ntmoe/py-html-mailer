@@ -5,6 +5,40 @@ These are scripts that I use to send e-mail marketing messages through a private
 
 The script `archiveVersion.py` takes an HTML e-mail and assembles versions both for sending and for archival viewing through the Web. The images from the message are copied to a Web-accessible directory on the user's account, and the image sources for the sending and archival versions are automatically updated to point to that Web-accessible directory. Once this is done and an HTML message (with optional plain text version) is assembled, `mailscript4.py` takes care of sending the message through the Exchange server (or any other SMTP-capable server).
 
+Requires the following Python packages which are normally not part of a standard installation:
+  - `BeautifulSoup`
+  - `configobj`
+  - `PIL`
+
+Also requires HTML Tidy, which can be obtained  and installed to a user's home directory (here, `~/local`) with
+
+    $ wget ftp://mirror.internode.on.net/pub/gentoo/distfiles/tidy-20090325.tar.bz2
+    $ tar xvjf tidy-20090325.tar.bz2
+    $ cd tidy-20090325
+    $ sh build/gnuauto/setup.sh
+    $ ./configure --prefix=$HOME/local
+    $ make install
+
+Install
+-------
+Clone the project, make the scripts executable, and link them to a `bin` directory on the user's account. (Here, `~/local/bin`, which is created here.
+
+    $ git clone git://github.com/ntmoe/py-html-mailer.git
+    $ cd py-html-mailer
+    $ chmod u+x archiveVersion.py
+    $ chmod u+x mailscript4.py
+    $ cd
+    $ mkdir -p ~/local/bin
+    $ cd local/bin
+    $ ln -s ~/py-html-mailer/archiveVersion.py archiveVersion
+    $ ln -s ~/py-html-mailer/mailscript4.py mailscript4
+
+Be sure to add this `bin` directory to your `$PATH`.
+
+Use
+---
+Create an HTML message. Our example here is `jan_newsletter.html`. If you're using images, place them in the same directory as the HTML file and refer to the images using relative links.
+
 The input file and other options are configured with a user-constructed INI file. Here's an example of this file:
 
     # Email header information
@@ -28,18 +62,16 @@ The input file and other options are configured with a user-constructed INI file
     use_premailer = True
     use_lynx_for_text = False
     send_message = True
+    
+Once you have this, you can process the HTML file, make sending and archive versions and send it off:
+    
+    $ archiveVersion config.ini
+    $ mailscript4 config.ini
+    
+You will be prompted for your e-mail account's password after the last command.
 
+What each script does
+---------------------
+(More to come)
 
-Requires the following Python packages which are normally not part of a standard installation:
-  - `BeautifulSoup`
-  - `configobj`
-  - `PIL`
-
-Also requires HTML Tidy, which can be obtained  and installed to a user's home directory (here, `~/local`) with
-
-    $ wget ftp://mirror.internode.on.net/pub/gentoo/distfiles/tidy-20090325.tar.bz2
-    $ tar xvjf tidy-20090325.tar.bz2
-    $ cd tidy-20090325
-    $ sh build/gnuauto/setup.sh
-    $ ./configure --prefix=$HOME/local
-    $ make install
+I use MailChimp-style tags when constructing my e-mail messages. When `archiveVersion.py` detects `*|ARCHIVE|*` in the HTML source, it replaces that tag with the URL for the archive version that will be posted online.
